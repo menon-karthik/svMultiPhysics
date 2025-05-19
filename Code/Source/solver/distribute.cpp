@@ -414,6 +414,32 @@ void distribute(Simulation* simulation)
     com_mod.pS0 = all_fun::local(com_mod, cm_mod, cm, tmpX);
     tmpX.clear();
   }
+  
+  // Distribute tagRT (read in read_files()).
+  //
+  flag = (com_mod.tagRT.size() != 0);
+  cm.bcast(cm_mod, &flag);
+
+  if (flag) {
+    if (cm.mas(cm_mod)) {
+      tmpX.resize(1, com_mod.gtnNo);
+      for (int i = 0; i < tmpX.ncols(); i++) {
+        tmpX(0,i) = com_mod.tagRT[i];
+      }
+      com_mod.tagRT.clear();
+    } else { 
+      tmpX.clear();
+    }
+    wgt.resize(1, com_mod.tnNo); 
+    com_mod.tagRT.resize(com_mod.tnNo);
+    wgt = all_fun::local(com_mod, cm_mod, cm, tmpX);
+    for (int i = 0; i < wgt.ncols(); i++) {
+      com_mod.tagRT[i] = wgt(0,i);
+    }
+    tmpX.clear(); 
+    wgt.clear();
+  }
+
 
   //  Distribute initial flow quantities to processors
   //

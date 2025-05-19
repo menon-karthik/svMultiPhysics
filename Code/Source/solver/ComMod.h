@@ -1547,6 +1547,8 @@ class ComMod {
     /// @brief IB: iblank used for immersed boundaries (1 => solid, 0 => fluid)
     Vector<int> iblank;
 
+    Vector<double> tagRT;
+
     /// @brief Old time derivative of variables (acceleration); known result at current time step
     Array<double>  Ao;
 

@@ -97,6 +97,7 @@ void construct_heatf(ComMod& com_mod, const mshType& lM, const Array<double>& Ag
   Array<double> xl(nsd,eNoN), al(tDof,eNoN), yl(tDof,eNoN), Nx(nsd,eNoN), lR(dof,eNoN);
   Array3<double> lK(dof*dof,eNoN,eNoN);
   Array<double> ksix(nsd,nsd);
+  Vector<double> tl(eNoN);
 
   for (int e = 0; e < lM.nEl; e++) {
     // Update domain and proceed if domain phys and eqn phys match
@@ -125,6 +126,7 @@ void construct_heatf(ComMod& com_mod, const mshType& lM, const Array<double>& Ag
         al(i,a) = Ag(i,Ac);
         yl(i,a) = Yg(i,Ac);
       }
+      tl = com_mod.tagRT(Ac);
     }
 
     // Gauss integration
@@ -146,7 +148,7 @@ void construct_heatf(ComMod& com_mod, const mshType& lM, const Array<double>& Ag
       N = lM.N.col(g);
 
       if (nsd == 3) {
-        heatf_3d(com_mod, eNoN, w, N, Nx, al, yl, ksix, lR, lK);
+        heatf_3d(com_mod, eNoN, w, N, Nx, al, yl, tl, ksix, lR, lK);
 
       } else if (nsd == 2) {
         heatf_2d(com_mod, eNoN, w, N, Nx, al, yl, ksix, lR, lK);
@@ -245,7 +247,7 @@ void heatf_2d(ComMod& com_mod, const int eNoN, const double w, const Vector<doub
 
 
 void heatf_3d(ComMod& com_mod, const int eNoN, const double w, const Vector<double>& N, const Array<double>& Nx,
-    const Array<double>& al, const Array<double>& yl, const Array<double>& ksix, Array<double>& lR, Array3<double>& lK)
+    const Array<double>& al, const Array<double>& yl, const Vector<double>& tl, const Array<double>& ksix, Array<double>& lR, Array3<double>& lK)
 {
   #define n_debug_heatf_3d 
   #ifdef debug_heatf_3d 
@@ -276,6 +278,7 @@ void heatf_3d(ComMod& com_mod, const int eNoN, const double w, const Vector<doub
   double nu = dmn.prop.at(PhysicalProperyType::conductivity);
   double s = dmn.prop.at(PhysicalProperyType::source_term);
   double wl = w * T1;
+  double fs = 0.0;
 
   #ifdef debug_heatf_3d 
   dmsg;
@@ -288,7 +291,10 @@ void heatf_3d(ComMod& com_mod, const int eNoN, const double w, const Vector<doub
   dmsg << "ct: " << ct;
   #endif
 
-  double Td = -s;
+  if (std::all_of(tl.begin(), tl.end(), [](double i){ return i == 1.0; }) == true) {
+      fs = 1.0;
+  }
+  double Td = -s - fs;
   Vector<double> Tx(nsd), u(nsd), udNx(eNoN);
 
   for (int a = 0; a < eNoN; a++) {

@@ -1752,6 +1752,21 @@ void read_files(Simulation* simulation, const std::string& file_name)
       if ((eq1_type != "fluid") && (eq1_type != "FSI") && (!com_mod.usePrecomp)) {
         throw std::runtime_error("heatF equation has to be specified after fluid/FSI equation");
       }
+      com_mod.tagRT.resize(com_mod.gtnNo);
+      std::ifstream file_stream;
+      file_stream.open("tagFile");
+      if (!file_stream.is_open()) {
+        throw std::runtime_error("Failed to open tagFile.");
+      }
+      int num_tag_nodes;
+      file_stream >> num_tag_nodes;
+      if (num_tag_nodes != com_mod.gtnNo) {
+        throw std::runtime_error("tagFile does not have same number of nodes as the mesh.");
+      }
+      for (int i_tag = 0; i_tag < com_mod.gtnNo; i_tag++) {
+        file_stream >> com_mod.tagRT[i_tag];
+      }
+      file_stream.close();
     }     
 
     if (eq.phys == EquationType::phys_mesh) {   

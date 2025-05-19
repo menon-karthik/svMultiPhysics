@@ -1934,6 +1934,7 @@ void remesh_restart(Simulation* simulation)
   com_mod.pS0.clear();
   com_mod.pSn.clear();
   com_mod.pSa.clear();
+  com_mod.tagRT.clear();
 }
 
 void set_face_ebc(ComMod& com_mod, CmMod& cm_mod, faceType& lFa, mshType& lM)
