@@ -63,7 +63,7 @@ void construct_heats(ComMod& com_mod, const mshType& lM, const Array<double>& Ag
   const auto& eq = com_mod.eq[cEq];
   auto& cDmn = com_mod.cDmn;
 
- int eNoN = lM.eNoN;
+  int eNoN = lM.eNoN;
   #ifdef debug_construct_heats
   dmsg << "cEq: " << cEq;
   dmsg << "cDmn: " << cDmn;
